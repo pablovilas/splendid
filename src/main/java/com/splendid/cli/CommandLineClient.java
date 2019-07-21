@@ -1,23 +1,15 @@
 package com.splendid.cli;
 
-import picocli.CommandLine;
+import com.splendid.config.Configuration;
+import com.splendid.generator.TemplateEngine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
-@Command(
-    name = "splendid",
-    mixinStandardHelpOptions = true,
-    version = "Splendid generator 1.0"
-)
+@Command(name = "splendid", mixinStandardHelpOptions = true, version = "Splendid generator 1.0")
 public class CommandLineClient implements Runnable {
-
-  @Option(
-      names = { "-v", "--verbose" },
-      description = "Verbose mode. Helpful for troubleshooting."
-  )
-  private boolean verbose = false;
 
   @Option(
       names = { "-t", "--template" },
@@ -27,23 +19,43 @@ public class CommandLineClient implements Runnable {
   private Path template = null;
 
   @Option(
-      names = { "-e", "--extension" },
-      description = "Template file extension. Specifies the template files extension type. Default is \".tpl\"."
+      names = { "-o", "--output" },
+      description = "Project output folder. Path to the project output."
   )
-  private String extension = null;
+  private Path output = Configuration.DEFAULT_OUTPUT_PATH;
+
+  @Option(
+      names = { "-f", "--file" },
+      description = "Project data. Path to the project JSON data."
+  )
+  private Path file = null;
 
   @Option(
       names = { "-d", "--data" },
-      description = "Project data. Path to the project JSON data.",
-      required = true
+      description = "Project data. Project JSON data."
   )
-  private Path data = null;
+  private String data = null;
 
   @Override
   public void run() {
-    System.out.println("verbose: " + verbose);
-    System.out.println("template: " + template);
-    System.out.println("extension: " + extension);
-    System.out.println("data: " + data);
+    try {
+      Configuration config = getConfiguration();
+      TemplateEngine.run(config);
+    } catch (IOException exception) {
+      throw new RuntimeException(exception.getMessage(), exception);
+    }
+  }
+
+  private Configuration getConfiguration() {
+    Configuration config = new Configuration();
+    config
+        .withTemplate(template)
+        .withTarget(output);
+    if (file != null) {
+      config.withData(file);
+    } else {
+      config.withData(data);
+    }
+    return config;
   }
 }

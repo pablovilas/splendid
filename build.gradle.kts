@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    implementation("com.google.code.gson:gson:2.8.5")
     implementation("com.github.spullara.mustache.java:compiler:0.9.6")
     implementation("info.picocli:picocli:4.0.1")
     annotationProcessor("info.picocli:picocli-codegen:4.0.1")

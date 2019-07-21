@@ -24,6 +24,10 @@ public class Artifact {
     }
   }
 
+  public static boolean isDirectory(Path path) {
+    return Files.isDirectory(path);
+  }
+
   public static boolean hasExtension(Path path, String extension) {
     return Files.isRegularFile(path) && path.getFileName().toString().endsWith(extension);
   }
@@ -32,8 +36,12 @@ public class Artifact {
     return Files.exists(path);
   }
 
-  public static void createDirectory(Path path) throws IOException {
-    Files.createDirectory(path);
+  public static void createDirectory(Path path) {
+    try {
+      Files.createDirectory(path);
+    } catch (IOException exception) {
+      throw new RuntimeException(exception.getMessage(), exception);
+    }
   }
 
   public static void delete(Path path) throws IOException {
